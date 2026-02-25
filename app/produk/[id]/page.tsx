@@ -1,16 +1,20 @@
 'use client'
 
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import { useCart } from '@/context/CartContext'
 
 export default function ProdukDetail() {
   const params = useParams()
+  const router = useRouter()
   const id = params.id
+  const { addToCart } = useCart()
   
   const [quantity, setQuantity] = useState(1)
   const [customKg, setCustomKg] = useState('')
+  const [isAdding, setIsAdding] = useState(false)
 
   const allProducts = [
     { id: 1, name: 'Cabe Merah Keriting', image: '/images/Cabe Kriting Merah segar.jpg', pricePerKg: 45000 },
@@ -41,6 +45,40 @@ export default function ProdukDetail() {
     const total = calculatePrice()
     const message = `Halo, saya ingin memesan:\n\nProduk: ${product.name}\nJumlah: ${kg} kg\nTotal: Rp ${total.toLocaleString('id-ID')}`
     window.open(`https://wa.me/6282005479994?text=${encodeURIComponent(message)}`, '_blank')
+  }
+
+  const handleAddToCart = () => {
+    try {
+      setIsAdding(true)
+      const kg = customKg ? parseFloat(customKg) : quantity
+      
+      console.log('handleAddToCart called with kg:', kg)
+      
+      if (isNaN(kg) || kg <= 0) {
+        alert('Jumlah tidak valid!')
+        setIsAdding(false)
+        return
+      }
+      
+      const cartItem = {
+        id: `produk-${product.id}`,
+        name: product.name,
+        price: product.pricePerKg,
+        quantity: kg,
+        image: product.image,
+        unit: 'kg'
+      }
+      
+      console.log('Adding cart item:', cartItem)
+      addToCart(cartItem)
+      
+      alert(`✅ ${product.name} berhasil ditambahkan ke keranjang!`)
+      setIsAdding(false)
+    } catch (error) {
+      console.error('Error adding to cart:', error)
+      alert('Terjadi kesalahan saat menambahkan ke keranjang: ' + error)
+      setIsAdding(false)
+    }
   }
 
   return (
@@ -115,6 +153,24 @@ export default function ProdukDetail() {
                     </span>
                   </div>
                 </div>
+
+                <button
+                  onClick={handleAddToCart}
+                  disabled={isAdding}
+                  className="w-full bg-primary hover:bg-primary-dark text-white py-4 rounded-xl text-xl font-bold transition transform hover:scale-105 shadow-lg flex items-center justify-center gap-3 mb-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isAdding ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin text-2xl"></i>
+                      Menambahkan...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-shopping-cart text-2xl"></i>
+                      Tambah ke Keranjang
+                    </>
+                  )}
+                </button>
 
                 <button
                   onClick={handleOrder}

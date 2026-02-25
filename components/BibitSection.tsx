@@ -36,7 +36,10 @@ export default function BibitSection() {
                 <p className="text-xl font-bold text-primary">
                   Rp {bibit.price.toLocaleString('id-ID')}
                 </p>
-                <button className="bg-primary hover:bg-primary-dark text-white w-10 h-10 rounded-full transition transform hover:scale-110">
+                <button 
+                  onClick={() => window.location.href = `/bibit/${idx + 1}`}
+                  className="bg-primary hover:bg-primary-dark text-white w-10 h-10 rounded-full transition transform hover:scale-110"
+                >
                   <i className="fas fa-shopping-cart"></i>
                 </button>
               </div>
